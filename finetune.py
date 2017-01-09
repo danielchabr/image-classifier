@@ -83,7 +83,7 @@ def fit(symbol, arg_params, aux_params, train, val, batch_size, num_gpus):
     mod.bind(data_shapes=train.provide_data, label_shapes=train.provide_label)
     mod.init_params(initializer=mx.init.Xavier(rnd_type='gaussian', factor_type="in", magnitude=2))
     mod.set_params(new_args, aux_params, allow_missing=True)
-    mod.fit(train, val, 
+    mod.fit(train, None, 
         num_epoch=8,
         batch_end_callback = mx.callback.Speedometer(batch_size, 1),        
         epoch_end_callback = checkpoint,

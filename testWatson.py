@@ -23,11 +23,12 @@ def predict(filename):
         status = pickle.load(f)
 
     if filename in status:
-        print('already analyzed')
+        #print('already analyzed')
         return status[filename]
-    else:
-        print('not analyzed yet')
+    #else:
+        #print('not analyzed yet')
 
+    sleep(randint(1,5))
 
     with open(filename, "rb") as image_file:
         encoded_image = "data:" + "image/jpeg" + ";" + "base64," + base64.b64encode(image_file.read())
@@ -35,6 +36,7 @@ def predict(filename):
     payload = {
         'classifier_id': 'DogBreeds_1883911605',
         'url': '',
+        'threshold': 0.0,
         'image_data': encoded_image
     }
     headers = {
@@ -101,7 +103,6 @@ if __name__ == '__main__':
                 print('FALSE ' + filepath)
                 wrongFiles.append(filepath)
             # wait before sending next request
-            sleep(randint(1,5))
 
     print(wrongFiles)
     print('Validation accuracy: ' + str(correct/total))

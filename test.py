@@ -7,7 +7,7 @@ import mxnet as mx
 from collections import namedtuple
 Batch = namedtuple('Batch', ['data'])
 
-IMAGE_SIZE = 200
+IMAGE_SIZE = 400
 MODEL = 'model/resnet'
 MXNET_HOME = './..'
 DATA_DIR = 'data/categories'
@@ -55,6 +55,8 @@ if __name__ == '__main__':
         files = [f for f in listdir(TEST_PATH + c) if isfile(join(TEST_PATH + c, f))]
         for f in files:
             filepath = TEST_PATH + c + '/' + f
+            if filepath.split('/')[-1] == '.DS_Store':
+                continue
             result = predict(filepath, mod, classes)
             total += 1.0
             if result == c:
