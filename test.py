@@ -7,7 +7,7 @@ import mxnet as mx
 from collections import namedtuple
 Batch = namedtuple('Batch', ['data'])
 
-IMAGE_SIZE = 100
+IMAGE_SIZE = 200
 MODEL = 'model/resnet'
 MXNET_HOME = './..'
 DATA_DIR = 'data/categories'
@@ -41,16 +41,12 @@ def predict(filename, mod, classes):
     return classes[a[0:5][0]]
 
 if __name__ == '__main__':
-    sym, arg_params, aux_params = mx.model.load_checkpoint(MODEL, 1)
+    sym, arg_params, aux_params = mx.model.load_checkpoint(MODEL, 8)
     mod = mx.mod.Module(symbol=sym)
     mod.bind(for_training=False, data_shapes=[('data', (1,3,IMAGE_SIZE,IMAGE_SIZE))])
     mod.set_params(arg_params, aux_params)
 
     TEST_PATH = 'test/categories/'
-
-    # TEST DATASET
-    os.system('python ' + MXNET_HOME + '/tools/im2rec.py --list=1 --recursive=1 --shuffle=1  test/list test/categories')
-    os.system('python ' + MXNET_HOME + '/tools/im2rec.py --num-thread=4 --resize=' + IMAGE_SIZE_STR + ' --color=1 test/list test/categories')
 
     total = .0
     correct = .0
@@ -62,7 +58,7 @@ if __name__ == '__main__':
             result = predict(filepath, mod, classes)
             total += 1.0
             if result == c:
-                #print('CORRECT ' + filepath)
+                print('CORRECT ' + filepath)
                 correct += 1.0
             else:
                 print('FALSE ' + filepath)

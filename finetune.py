@@ -15,13 +15,14 @@ logging.basicConfig(level=logging.DEBUG, format=head)
 
 MXNET_HOME = './..'
 DATA_DIR = 'data/categories'
-IMAGE_SIZE = 120
+IMAGE_SIZE = 200
 IMAGE_SIZE_STR = str(IMAGE_SIZE)
 NETWORK = 'resnet'
 
 def get_iterators(batch_size, data_shape=(3, IMAGE_SIZE, IMAGE_SIZE)):
     train = mx.io.ImageRecordIter(
-        path_imgrec         = './data/list_train.rec',
+        #path_imgrec         = './data/list_train.rec',
+        path_imgrec         = './data/list.rec',
         data_name           = 'data',
         label_name          = 'softmax_label',
         batch_size          = batch_size,
@@ -30,7 +31,8 @@ def get_iterators(batch_size, data_shape=(3, IMAGE_SIZE, IMAGE_SIZE)):
         rand_crop           = True,
         rand_mirror         = True)
     val = mx.io.ImageRecordIter(
-        path_imgrec         = './data/list_val.rec',
+        #path_imgrec         = './data/list_val.rec',
+        path_imgrec         = './test/list.rec',
         data_name           = 'data',
         label_name          = 'softmax_label',
         batch_size          = batch_size,
@@ -93,8 +95,11 @@ def fit(symbol, arg_params, aux_params, train, val, batch_size, num_gpus):
 
 if __name__ == '__main__':
 
-    os.system('python ' + MXNET_HOME + '/tools/im2rec.py --list=1 --recursive=1 --shuffle=1 --train-ratio=0.9 data/list ' + DATA_DIR)
+    os.system('python ' + MXNET_HOME + '/tools/im2rec.py --list=1 --recursive=1 --shuffle=1 data/list ' + DATA_DIR)
     os.system('python ' + MXNET_HOME + '/tools/im2rec.py --num-thread=16 --resize=' + IMAGE_SIZE_STR + ' data/list ' + DATA_DIR)
+
+    os.system('python ' + MXNET_HOME + '/tools/im2rec.py --list=1 --recursive=1 --shuffle=1  test/list test/categories')
+    os.system('python ' + MXNET_HOME + '/tools/im2rec.py --num-thread=16 --resize=' + IMAGE_SIZE_STR + ' --color=1 test/list test/categories')
 
     get_model('http://data.mxnet.io/models/imagenet/resnet/50-layers/resnet-50', 0)
     sym, arg_params, aux_params = mx.model.load_checkpoint('resnet-50', 0)
@@ -109,7 +114,7 @@ if __name__ == '__main__':
     #Additional for local only
     #batch_size = batch_per_gpu * num_gpus
     num_gpus = None
-    batch_size = 15
+    batch_size = 30
 
     (train, val) = get_iterators(batch_size)
     mod_score = fit(new_sym, new_args, aux_params, train, val, batch_size, num_gpus)
