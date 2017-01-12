@@ -70,6 +70,14 @@ def _save_model():
         os.mkdir(dst_dir)
     return mx.callback.do_checkpoint(model_prefix)
 
+def _load_model():
+    model_prefix = 'model/resnet'
+    epoch = 10
+    sym, arg_params, aux_params = mx.model.load_checkpoint(
+        model_prefix, epoch)
+    logging.info('Loaded model %s_%04d.params', model_prefix, epoch)
+    return (sym, arg_params, aux_params)
+
 def fit(symbol, arg_params, aux_params, train, val, batch_size, num_gpus):
     devs = mx.cpu() if num_gpus is None or args.gpus is 0 else [
         mx.gpu(i) for i in range(num_gpus)]
@@ -79,17 +87,19 @@ def fit(symbol, arg_params, aux_params, train, val, batch_size, num_gpus):
     # save model
     checkpoint = _save_model()
 
+    new_sym, arg_params, aux_params = _load_model()
+
     mod = mx.mod.Module(symbol=new_sym, context=devs)
     mod.bind(data_shapes=train.provide_data, label_shapes=train.provide_label)
     mod.init_params(initializer=mx.init.Xavier(rnd_type='gaussian', factor_type="in", magnitude=2))
-    mod.set_params(new_args, aux_params, allow_missing=True)
+    mod.set_params(arg_params, aux_params, allow_missing=True)
     mod.fit(train, None, 
-        num_epoch=8,
+        num_epoch=10,
         batch_end_callback = mx.callback.Speedometer(batch_size, 1),        
         epoch_end_callback = checkpoint,
         kvstore='device',
         optimizer='sgd',
-        optimizer_params={'learning_rate':0.005},
+        optimizer_params={'learning_rate':0.01},
         eval_metric='acc')
     return mod.score(val, 'acc')
 
@@ -102,7 +112,8 @@ if __name__ == '__main__':
     os.system('python ' + MXNET_HOME + '/tools/im2rec.py --num-thread=16 --resize=' + IMAGE_SIZE_STR + ' --color=1 test/list test/categories')
 
     get_model('http://data.mxnet.io/models/imagenet/resnet/50-layers/resnet-50', 0)
-    sym, arg_params, aux_params = mx.model.load_checkpoint('resnet-50', 0)
+    get_model('http://data.mxnet.io/models/imagenet-11k/resnet-152/resnet-152', 0)
+    sym, arg_params, aux_params = mx.model.load_checkpoint('resnet-152', 0)
 
     # Output may vary
     num_classes = 3

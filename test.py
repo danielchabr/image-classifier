@@ -7,8 +7,8 @@ import mxnet as mx
 from collections import namedtuple
 Batch = namedtuple('Batch', ['data'])
 
-IMAGE_SIZE = 400
-MODEL = 'model/resnet'
+IMAGE_SIZE = 200
+MODEL = 'model/imagenet11k152-lr0_01/resnet'
 MXNET_HOME = './..'
 DATA_DIR = 'data/categories'
 IMAGE_SIZE_STR = str(IMAGE_SIZE)
@@ -41,7 +41,7 @@ def predict(filename, mod, classes):
     return classes[a[0:5][0]]
 
 if __name__ == '__main__':
-    sym, arg_params, aux_params = mx.model.load_checkpoint(MODEL, 8)
+    sym, arg_params, aux_params = mx.model.load_checkpoint(MODEL, 6)
     mod = mx.mod.Module(symbol=sym)
     mod.bind(for_training=False, data_shapes=[('data', (1,3,IMAGE_SIZE,IMAGE_SIZE))])
     mod.set_params(arg_params, aux_params)

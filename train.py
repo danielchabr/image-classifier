@@ -15,7 +15,7 @@ LABELS = []#['beagle dog', 'husky dog', 'dalmatian dog']
 API_KEY = '4196410-648a310def2eb58655fe4fa70'
 MXNET_HOME = './..'
 DATA_DIR = 'data/categories'
-IMAGE_SIZE = '224'
+IMAGE_SIZE = '200'
 NETWORK = 'resnet'
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -46,7 +46,7 @@ if __name__ == '__main__':
         downloadImages(label, imageLinks)
 
     # TRAIN DATASET
-    os.system('python ' + MXNET_HOME + '/tools/im2rec.py --list=1 --recursive=1 --shuffle=1 --train-ratio=0.8 data/list ' + DATA_DIR)
+    os.system('python ' + MXNET_HOME + '/tools/im2rec.py --list=1 --recursive=1 --shuffle=1 data/list ' + DATA_DIR)
     os.system('python ' + MXNET_HOME + '/tools/im2rec.py --num-thread=4 --resize=' + IMAGE_SIZE + ' --quality 90 --color=1 data/list ' + DATA_DIR)
 
     # TEST DATASET
@@ -64,25 +64,23 @@ if __name__ == '__main__':
         #gpus           = '0',
         # network
         network        = NETWORK,
-        num_layers     = 101,
+        num_layers     = 50,
         # data
-        data_train     = 'data/list_train.rec',
-        data_val       = 'data/list_val.rec',
+        data_train     = 'data/list.rec',
+        data_val       = 'test/list.rec',
         num_classes    = 3,
         num_examples   = 150,
         image_shape    = '3,' + IMAGE_SIZE + ',' + IMAGE_SIZE,
         pad_size       = 4,
         min_random_scale = 1, # if input image has min size k, suggest to use
-        top_k          = 1,
 
         # train
-        batch_size     = 30,
-        disp_batches   = 1,
-        num_epochs     = 10,
-        lr             = .01,
+        batch_size     = 50,
+        num_epochs     = 12,
+        lr             = .02,
         lr_factor      = 0.8,
         lr_factor_epoch = 0.5,
-        lr_step_epochs = '100',
+        lr_step_epochs = '4,8',
         #save model
         model_prefix   =  'model/' + NETWORK
     )
